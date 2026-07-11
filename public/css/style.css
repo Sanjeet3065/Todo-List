@@ -1,0 +1,360 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #333;
+    font-size: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Todo Cards */
+.todos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.todo-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 5px solid #667eea;
+}
+
+.todo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.todo-card.priority-high {
+    border-left-color: #ff4757;
+}
+
+.todo-card.priority-medium {
+    border-left-color: #ffa502;
+}
+
+.todo-card.priority-low {
+    border-left-color: #2ed573;
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.todo-title {
+    flex: 1;
+}
+
+.todo-title h3 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.priority-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-right: 8px;
+}
+
+.priority-badge.priority-high {
+    background: #ff4757;
+    color: white;
+}
+
+.priority-badge.priority-medium {
+    background: #ffa502;
+    color: white;
+}
+
+.priority-badge.priority-low {
+    background: #2ed573;
+    color: white;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.status-pending {
+    background: #dfe6e9;
+    color: #2d3436;
+}
+
+.status-badge.status-completed {
+    background: #00b894;
+    color: white;
+}
+
+.todo-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.todo-actions button,
+.todo-actions a {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-size: 1rem;
+}
+
+.todo-actions button:hover,
+.todo-actions a:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.btn-toggle {
+    color: #3498db !important;
+}
+
+.btn-edit {
+    color: #f39c12 !important;
+}
+
+.btn-delete {
+    color: #e74c3c !important;
+}
+
+.todo-description {
+    color: #666;
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* Form Styles */
+.form-container {
+    background: rgba(255, 255, 255, 0.95);
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.form-header h2 {
+    color: #333;
+}
+
+.btn-back {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    color: #764ba2;
+}
+
+.todo-form .form-group {
+    margin-bottom: 25px;
+}
+
+.todo-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.todo-form label i {
+    margin-right: 8px;
+    color: #667eea;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 35px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-submit {
+    flex: 1;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 14px;
+    background: #f0f0f0;
+    color: #666;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #e0e0e0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    color: #666;
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .todos-container {
+        grid-template-columns: 1fr;
+    }
+
+    .form-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}
