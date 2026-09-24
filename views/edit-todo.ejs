@@ -1,70 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title><%= title %> - TaskFlow PRO</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="form-container">
-            <div class="form-header">
-                <h2><i class="fas fa-edit"></i> <%= title %></h2>
-                <a href="/" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
-            </div>
+    <div class="app-wrapper">
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
 
-            <form action="/edit/<%= todo.id %>" method="POST" class="todo-form">
-                <div class="form-group">
-                    <label for="name">
-                        <i class="fas fa-tag"></i> Todo Name *
-                    </label>
-                    <input type="text" id="name" name="name" required 
-                           value="<%= todo.name %>" class="form-control">
+        <div class="container container-form">
+            <header class="app-header glass-card">
+                <div class="brand-section">
+                    <div class="brand-logo">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="brand-title">TaskFlow <span class="badge-pro">PRO</span></div>
+                        <p class="brand-subtitle">Organized & Categorized Task Suite</p>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="description">
-                        <i class="fas fa-align-left"></i> Description *
-                    </label>
-                    <textarea id="description" name="description" required 
-                              class="form-control" rows="4"><%= todo.description %></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="priority">
-                        <i class="fas fa-flag"></i> Priority *
-                    </label>
-                    <select id="priority" name="priority" required class="form-control">
-                        <option value="high" <%= todo.priority === 'high' ? 'selected' : '' %>>🔴 High</option>
-                        <option value="medium" <%= todo.priority === 'medium' ? 'selected' : '' %>>🟡 Medium</option>
-                        <option value="low" <%= todo.priority === 'low' ? 'selected' : '' %>>🟢 Low</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="status">
-                        <i class="fas fa-check-circle"></i> Status
-                    </label>
-                    <select id="status" name="status" class="form-control">
-                        <option value="pending" <%= todo.status === 'pending' ? 'selected' : '' %>>⏳ Pending</option>
-                        <option value="completed" <%= todo.status === 'completed' ? 'selected' : '' %>>✅ Completed</option>
-                    </select>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-save"></i> Update Todo
+                <div class="header-actions">
+                    <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle theme">
+                        <i class="fas fa-sun light-icon"></i>
+                        <i class="fas fa-moon dark-icon"></i>
                     </button>
-                    <a href="/" class="btn-cancel">
-                        <i class="fas fa-times"></i> Cancel
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Dashboard</span>
                     </a>
                 </div>
-            </form>
+            </header>
+
+            <main class="form-wrapper glass-card">
+                <div class="form-page-header">
+                    <div class="form-title-badge edit-badge">
+                        <i class="fas fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h2>Edit Task #<%= todo.id %></h2>
+                        <p class="form-page-sub">Update details, re-categorize, or adjust status</p>
+                    </div>
+                </div>
+
+                <form action="/edit/<%= todo.id %>" method="POST" class="todo-form">
+                    <div class="form-group">
+                        <label for="name">
+                            <i class="fas fa-heading"></i> Task Title <span class="required">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" required 
+                               value="<%= todo.name %>" class="form-input" autofocus>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label for="category">
+                                <i class="fas fa-folder"></i> Category <span class="required">*</span>
+                            </label>
+                            <select id="category" name="category" required class="form-input custom-select">
+                                <option value="Work" <%= (todo.category === 'Work' || !todo.category) ? 'selected' : '' %>>💼 Work</option>
+                                <option value="Development" <%= todo.category === 'Development' ? 'selected' : '' %>>💻 Development</option>
+                                <option value="Design" <%= todo.category === 'Design' ? 'selected' : '' %>>🎨 Design</option>
+                                <option value="Personal" <%= todo.category === 'Personal' ? 'selected' : '' %>>🏠 Personal</option>
+                                <option value="Finance" <%= todo.category === 'Finance' ? 'selected' : '' %>>💰 Finance</option>
+                                <option value="General" <%= todo.category === 'General' ? 'selected' : '' %>>📌 General</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priority">
+                                <i class="fas fa-flag"></i> Priority <span class="required">*</span>
+                            </label>
+                            <select id="priority" name="priority" required class="form-input custom-select">
+                                <option value="high" <%= todo.priority === 'high' ? 'selected' : '' %>>🔴 High Priority</option>
+                                <option value="medium" <%= todo.priority === 'medium' ? 'selected' : '' %>>🟡 Medium Priority</option>
+                                <option value="low" <%= todo.priority === 'low' ? 'selected' : '' %>>🟢 Low Priority</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">
+                                <i class="fas fa-circle-check"></i> Status <span class="required">*</span>
+                            </label>
+                            <select id="status" name="status" required class="form-input custom-select">
+                                <option value="pending" <%= todo.status === 'pending' ? 'selected' : '' %>>⏳ In Progress</option>
+                                <option value="completed" <%= todo.status === 'completed' ? 'selected' : '' %>>✅ Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dueDate">
+                            <i class="far fa-calendar-alt"></i> Target Completion Date
+                        </label>
+                        <input type="date" id="dueDate" name="dueDate" value="<%= todo.dueDate || '' %>" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-align-left"></i> Description & Details <span class="required">*</span>
+                        </label>
+                        <textarea id="description" name="description" required 
+                                  class="form-input" rows="4"><%= todo.description %></textarea>
+                    </div>
+
+                    <div class="form-actions-page">
+                        <a href="/" class="btn btn-secondary">
+                            <i class="fas fa-xmark"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-glow">
+                            <i class="fas fa-floppy-disk"></i> Update Task
+                        </button>
+                    </div>
+                </form>
+            </main>
         </div>
     </div>
+
+    <script>
+        // Init theme
+        const currentTheme = localStorage.getItem('taskflow_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+            const now = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', now);
+            localStorage.setItem('taskflow_theme', now);
+        });
+    </script>
 </body>
 </html>

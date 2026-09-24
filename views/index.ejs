@@ -1,70 +1,452 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title><%= title %> - Premium Categorized Task Manager</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Canvas Confetti for task completion celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 <%= title %></h1>
-            <a href="/add" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Todo
-            </a>
-        </header>
+    <div class="app-wrapper">
+        <!-- Floating Ambient Background Orbs -->
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="ambient-glow glow-3"></div>
 
-        <div class="todos-container">
-            <% if (todos.length === 0) { %>
-                <div class="empty-state">
-                    <i class="fas fa-tasks"></i>
-                    <p>No todos yet. Create your first todo!</p>
+        <div class="container">
+            <!-- Navbar / Header -->
+            <header class="app-header glass-card">
+                <div class="brand-section">
+                    <div class="brand-logo">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="brand-title">TaskFlow <span class="badge-pro">PRO</span></div>
+                        <p class="brand-subtitle" id="currentDateText">Organized & Categorized Task Suite</p>
+                    </div>
                 </div>
-            <% } else { %>
-                <% todos.forEach(todo => { %>
-                    <div class="todo-card priority-<%= todo.priority %>">
-                        <div class="todo-header">
-                            <div class="todo-title">
-                                <h3><%= todo.name %></h3>
-                                <span class="priority-badge priority-<%= todo.priority %>">
-                                    <%= todo.priority %>
+
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle theme" title="Toggle Dark/Light Mode">
+                        <i class="fas fa-sun light-icon"></i>
+                        <i class="fas fa-moon dark-icon"></i>
+                    </button>
+
+                    <!-- Add New Task Button -->
+                    <button id="openQuickAddBtn" class="btn btn-primary btn-glow">
+                        <i class="fas fa-plus"></i>
+                        <span>New Task</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Productivity Metrics Grid -->
+            <section class="metrics-grid">
+                <div class="metric-card glass-card">
+                    <div class="metric-icon icon-total">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Total Tasks</span>
+                        <h3 class="metric-value" id="statTotal"><%= stats.total %></h3>
+                    </div>
+                    <div class="metric-sparkle"><i class="fas fa-sparkles"></i></div>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="metric-icon icon-pending">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">In Progress</span>
+                        <h3 class="metric-value" id="statPending"><%= stats.pending %></h3>
+                    </div>
+                    <span class="pulse-indicator">Active</span>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="metric-icon icon-completed">
+                        <i class="fas fa-badge-check"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Completed</span>
+                        <h3 class="metric-value" id="statCompleted"><%= stats.completed %></h3>
+                    </div>
+                    <span class="completion-pill"><%= stats.completionRate %>% Done</span>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="metric-icon icon-high">
+                        <i class="fas fa-fire-flame-curved"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">High Priority</span>
+                        <h3 class="metric-value" id="statHighPriority"><%= stats.highPriority %></h3>
+                    </div>
+                    <span class="priority-flag">Urgent</span>
+                </div>
+            </section>
+
+            <!-- Progress Bar Card -->
+            <div class="progress-bar-card glass-card">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <i class="fas fa-chart-line-up"></i>
+                        <span>Daily Productivity Pulse</span>
+                    </div>
+                    <span class="progress-percentage" id="progressPercentageText"><%= stats.completionRate %>%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressBarFill" data-progress="<%= stats.completionRate %>"></div>
+                </div>
+            </div>
+
+            <!-- Controls: Search, Categorized Filters & Views -->
+            <section class="controls-container glass-card">
+                <!-- Search and View Switcher -->
+                <div class="controls-top-row">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search tasks, categories or descriptions..." autocomplete="off">
+                        <button id="clearSearchBtn" class="clear-search-btn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Priority Dropdown Filter -->
+                    <div class="filter-dropdown-wrapper">
+                        <label for="priorityFilterSelect" class="sr-only">Priority Filter</label>
+                        <i class="fas fa-flag filter-icon"></i>
+                        <select id="priorityFilterSelect" class="custom-select">
+                            <option value="all">All Priorities</option>
+                            <option value="high">🔴 High Priority</option>
+                            <option value="medium">🟡 Medium Priority</option>
+                            <option value="low">🟢 Low Priority</option>
+                        </select>
+                    </div>
+
+                    <!-- View Switcher -->
+                    <div class="view-switch-group">
+                        <button class="view-btn active" data-view="categorized" title="Categorized Sections">
+                            <i class="fas fa-folder-tree"></i>
+                            <span class="view-label">Categorized</span>
+                        </button>
+                        <button class="view-btn" data-view="kanban" title="Kanban Board View">
+                            <i class="fas fa-columns-3"></i>
+                            <span class="view-label">Kanban</span>
+                        </button>
+                        <button class="view-btn" data-view="grid" title="Compact Grid View">
+                            <i class="fas fa-grid-2"></i>
+                            <span class="view-label">Grid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Tabs & Category Pills Row -->
+                <div class="filter-row">
+                    <!-- Status Segmented Controls -->
+                    <div class="status-tabs" id="statusTabs">
+                        <button class="status-tab active" data-status="all">
+                            <span>All</span>
+                            <span class="tab-count" id="countAll"><%= stats.total %></span>
+                        </button>
+                        <button class="status-tab" data-status="pending">
+                            <span>Pending</span>
+                            <span class="tab-count" id="countPending"><%= stats.pending %></span>
+                        </button>
+                        <button class="status-tab" data-status="completed">
+                            <span>Completed</span>
+                            <span class="tab-count" id="countCompleted"><%= stats.completed %></span>
+                        </button>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="category-pills-scroll" id="categoryPills">
+                        <button class="cat-pill active" data-category="all">
+                            <i class="fas fa-border-all"></i> All Categories
+                        </button>
+                        <button class="cat-pill" data-category="Work">
+                            <span class="cat-dot dot-work"></span> 💼 Work
+                        </button>
+                        <button class="cat-pill" data-category="Development">
+                            <span class="cat-dot dot-dev"></span> 💻 Development
+                        </button>
+                        <button class="cat-pill" data-category="Design">
+                            <span class="cat-dot dot-design"></span> 🎨 Design
+                        </button>
+                        <button class="cat-pill" data-category="Personal">
+                            <span class="cat-dot dot-personal"></span> 🏠 Personal
+                        </button>
+                        <button class="cat-pill" data-category="Finance">
+                            <span class="cat-dot dot-finance"></span> 💰 Finance
+                        </button>
+                        <button class="cat-pill" data-category="General">
+                            <span class="cat-dot dot-general"></span> 📌 General
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Todos Display Area -->
+            <main id="todosViewContainer">
+                <!-- ================= Categorized Group View (Default) ================= -->
+                <div id="categorizedView" class="view-section active">
+                    <!-- Group cards generated dynamically or rendered initially by EJS -->
+                    <% 
+                    const categoriesList = ['Work', 'Development', 'Design', 'Personal', 'Finance', 'General'];
+                    const categoryIcons = {
+                        'Work': 'fa-briefcase',
+                        'Development': 'fa-code',
+                        'Design': 'fa-palette',
+                        'Personal': 'fa-house-user',
+                        'Finance': 'fa-wallet',
+                        'General': 'fa-tag'
+                    };
+                    const categoryColors = {
+                        'Work': 'cat-work',
+                        'Development': 'cat-dev',
+                        'Design': 'cat-design',
+                        'Personal': 'cat-personal',
+                        'Finance': 'cat-finance',
+                        'General': 'cat-general'
+                    };
+                    %>
+
+                    <% categoriesList.forEach(catName => { 
+                        const catTodos = todos.filter(t => (t.category || 'General').toLowerCase() === catName.toLowerCase());
+                        if (catTodos.length > 0) {
+                    %>
+                    <div class="category-group-card glass-card" data-category-group="<%= catName %>">
+                        <div class="category-group-header">
+                            <div class="cat-header-title">
+                                <span class="cat-icon-badge <%= categoryColors[catName] %>">
+                                    <i class="fas <%= categoryIcons[catName] || 'fa-tag' %>"></i>
                                 </span>
-                                <span class="status-badge status-<%= todo.status %>">
-                                    <%= todo.status %>
+                                <h2><%= catName %></h2>
+                                <span class="group-count-pill"><%= catTodos.length %> <%= catTodos.length === 1 ? 'task' : 'tasks' %></span>
+                            </div>
+                            <div class="cat-header-meta">
+                                <span class="cat-progress-text">
+                                    <%= catTodos.filter(t => t.status === 'completed').length %> of <%= catTodos.length %> done
                                 </span>
                             </div>
-                            <div class="todo-actions">
-                                <form action="/toggle/<%= todo.id %>" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn-toggle" title="Toggle status">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </form>
-                                <a href="/edit/<%= todo.id %>" class="btn-edit" title="Edit todo">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="/delete/<%= todo.id %>" method="POST" style="display: inline;" 
-                                      onsubmit="return confirm('Are you sure you want to delete this todo?');">
-                                    <button type="submit" class="btn-delete" title="Delete todo">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
-                            </div>
                         </div>
-                        <div class="todo-description">
-                            <p><%= todo.description %></p>
-                        </div>
-                        <div class="todo-footer">
-                            <span class="date-created">
-                                <i class="far fa-clock"></i>
-                                <%= new Date(todo.createdAt).toLocaleDateString() %>
-                            </span>
+
+                        <div class="tasks-grid">
+                            <% catTodos.forEach(todo => { %>
+                                <div class="task-card glass-card <%= todo.status === 'completed' ? 'task-completed' : '' %>"
+                                     data-id="<%= todo.id %>"
+                                     data-category="<%= todo.category || 'General' %>"
+                                     data-priority="<%= todo.priority %>"
+                                     data-status="<%= todo.status %>"
+                                     data-name="<%= todo.name.toLowerCase() %>"
+                                     data-desc="<%= todo.description.toLowerCase() %>">
+                                    
+                                    <div class="task-card-inner">
+                                        <!-- Checkbox status toggle -->
+                                        <div class="task-check-wrapper">
+                                            <button type="button" class="btn-task-checkbox" data-id="<%= todo.id %>" aria-label="Toggle task status">
+                                                <i class="fas fa-check check-mark"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="task-card-content">
+                                            <div class="task-card-badges">
+                                                <span class="badge badge-cat <%= categoryColors[todo.category] || 'cat-general' %>">
+                                                    <i class="fas <%= categoryIcons[todo.category] || 'fa-tag' %>"></i>
+                                                    <%= todo.category || 'General' %>
+                                                </span>
+                                                <span class="badge badge-priority priority-<%= todo.priority %>">
+                                                    <span class="priority-dot"></span>
+                                                    <%= todo.priority.toUpperCase() %>
+                                                </span>
+                                                <% if (todo.dueDate) { %>
+                                                    <span class="badge badge-due">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        <%= todo.dueDate %>
+                                                    </span>
+                                                <% } %>
+                                            </div>
+
+                                            <h3 class="task-title"><%= todo.name %></h3>
+                                            <p class="task-desc"><%= todo.description %></p>
+
+                                            <div class="task-footer">
+                                                <span class="task-created-time">
+                                                    <i class="far fa-clock"></i>
+                                                    <%= new Date(todo.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) %>
+                                                </span>
+
+                                                <div class="task-actions-group">
+                                                    <a href="/edit/<%= todo.id %>" class="action-btn edit-action" title="Edit Task">
+                                                        <i class="fas fa-pen-to-square"></i>
+                                                    </a>
+                                                    <button type="button" class="action-btn delete-action" data-id="<%= todo.id %>" title="Delete Task">
+                                                        <i class="fas fa-trash-can"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
                         </div>
                     </div>
-                <% }) %>
-            <% } %>
+                    <% } %>
+                    <% }) %>
+
+                    <!-- When no tasks exist at all -->
+                    <div id="emptyViewMessage" class="empty-state glass-card <%= todos.length === 0 ? '' : 'is-hidden' %>">
+                        <div class="empty-icon-wrap">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h3>No Tasks Found</h3>
+                        <p>No tasks match your selected category or filters. Create a new task to get started!</p>
+                        <button class="btn btn-primary open-add-modal-trigger">
+                            <i class="fas fa-plus"></i> Add First Task
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================= Kanban Board View ================= -->
+                <div id="kanbanView" class="view-section">
+                    <div class="kanban-board">
+                        <!-- Pending Column -->
+                        <div class="kanban-column glass-card">
+                            <div class="kanban-column-header pending-header">
+                                <div class="column-title">
+                                    <span class="column-indicator indicator-pending"></span>
+                                    <h3>In Progress</h3>
+                                </div>
+                                <span class="column-badge" id="kanbanPendingCount"><%= stats.pending %></span>
+                            </div>
+                            <div class="kanban-task-list" id="kanbanPendingList">
+                                <!-- Populated dynamically or filtered -->
+                            </div>
+                        </div>
+
+                        <!-- Completed Column -->
+                        <div class="kanban-column glass-card">
+                            <div class="kanban-column-header completed-header">
+                                <div class="column-title">
+                                    <span class="column-indicator indicator-completed"></span>
+                                    <h3>Completed</h3>
+                                </div>
+                                <span class="column-badge" id="kanbanCompletedCount"><%= stats.completed %></span>
+                            </div>
+                            <div class="kanban-task-list" id="kanbanCompletedList">
+                                <!-- Populated dynamically or filtered -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= Grid View ================= -->
+                <div id="gridView" class="view-section">
+                    <div class="unified-tasks-grid" id="unifiedGrid">
+                        <!-- Populated by JS for flat responsive grid -->
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+
+    <!-- Quick Add Modal Dialog -->
+    <div id="quickAddModal" class="modal-overlay">
+        <div class="modal-container glass-card animate-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-plus"></i></div>
+                    <div>
+                        <h2>Create New Task</h2>
+                        <p class="modal-subtitle">Organize your work with custom categories & priorities</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="closeQuickAddBtn" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="quickAddForm" action="/add" method="POST" class="modal-form">
+                <div class="form-group">
+                    <label for="modalTaskName">
+                        <i class="fas fa-heading"></i> Task Title <span class="required">*</span>
+                    </label>
+                    <input type="text" id="modalTaskName" name="name" required placeholder="e.g., Redesign landing page banner" class="form-input" autofocus>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="modalTaskCategory">
+                            <i class="fas fa-folder"></i> Category <span class="required">*</span>
+                        </label>
+                        <select id="modalTaskCategory" name="category" required class="form-input custom-select">
+                            <option value="Work" selected>💼 Work</option>
+                            <option value="Development">💻 Development</option>
+                            <option value="Design">🎨 Design</option>
+                            <option value="Personal">🏠 Personal</option>
+                            <option value="Finance">💰 Finance</option>
+                            <option value="General">📌 General</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalTaskPriority">
+                            <i class="fas fa-flag"></i> Priority <span class="required">*</span>
+                        </label>
+                        <select id="modalTaskPriority" name="priority" required class="form-input custom-select">
+                            <option value="high">🔴 High Priority</option>
+                            <option value="medium" selected>🟡 Medium Priority</option>
+                            <option value="low">🟢 Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="modalTaskDueDate">
+                        <i class="far fa-calendar-alt"></i> Due Date (Optional)
+                    </label>
+                    <input type="date" id="modalTaskDueDate" name="dueDate" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="modalTaskDesc">
+                        <i class="fas fa-align-left"></i> Description <span class="required">*</span>
+                    </label>
+                    <textarea id="modalTaskDesc" name="description" required rows="3" placeholder="Provide details, scope, or checklist notes..." class="form-input"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelQuickAddBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-glow" id="submitQuickAddBtn">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Floating Action Button (FAB) -->
+    <button id="mobileFabBtn" class="mobile-fab-btn" aria-label="Add new task" title="Create New Task">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Server State Data -->
+    <script type="application/json" id="serverTodosData"><%- JSON.stringify(todos) %></script>
+    <script type="application/json" id="serverStatsData"><%- JSON.stringify(stats) %></script>
+    <script src="/js/script.js"></script>
 </body>
 </html>

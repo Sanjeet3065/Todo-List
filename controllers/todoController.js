@@ -4,28 +4,43 @@ const TodoController = {
     // Get all todos
     getAllTodos: (req, res) => {
         const todos = TodoModel.findAll();
+        const stats = TodoModel.getStats();
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, todos, stats });
+        }
+
         res.render('index', { 
             todos,
-            title: 'Todo List'
+            stats,
+            title: 'TaskFlow Pro'
         });
     },
 
     // Show add form
     showAddForm: (req, res) => {
         res.render('add-todo', { 
-            title: 'Add New Todo'
+            title: 'Create New Task'
         });
     },
 
     // Add new todo
     addTodo: (req, res) => {
-        const { name, description, priority } = req.body;
+        const { name, description, priority, category, dueDate } = req.body;
         
         if (!name || !description || !priority) {
-            return res.status(400).send('All fields are required');
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(400).json({ success: false, message: 'Name, description and priority are required' });
+            }
+            return res.status(400).send('All required fields must be filled');
         }
 
-        TodoModel.create(name, description, priority);
+        const newTodo = TodoModel.create(name, description, priority, category || 'Work', dueDate || '');
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.status(201).json({ success: true, todo: newTodo, stats: TodoModel.getStats() });
+        }
+
         res.redirect('/');
     },
 
@@ -33,28 +48,38 @@ const TodoController = {
     showEditForm: (req, res) => {
         const todo = TodoModel.findById(req.params.id);
         if (!todo) {
-            return res.status(404).send('Todo not found');
+            return res.status(404).send('Task not found');
         }
         res.render('edit-todo', { 
             todo,
-            title: 'Edit Todo'
+            title: 'Edit Task'
         });
     },
 
     // Update todo
     updateTodo: (req, res) => {
-        const { name, description, priority, status } = req.body;
+        const { name, description, priority, category, status, dueDate } = req.body;
         const updated = TodoModel.update(
             req.params.id, 
             name, 
             description, 
-            priority, 
-            status
+            priority,
+            category,
+            status,
+            dueDate
         );
         
         if (!updated) {
-            return res.status(404).send('Todo not found');
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+            return res.status(404).send('Task not found');
         }
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, todo: updated, stats: TodoModel.getStats() });
+        }
+
         res.redirect('/');
     },
 
@@ -62,8 +87,16 @@ const TodoController = {
     deleteTodo: (req, res) => {
         const deleted = TodoModel.delete(req.params.id);
         if (!deleted) {
-            return res.status(404).send('Todo not found');
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+            return res.status(404).send('Task not found');
         }
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, id: req.params.id, stats: TodoModel.getStats() });
+        }
+
         res.redirect('/');
     },
 
@@ -71,8 +104,16 @@ const TodoController = {
     toggleStatus: (req, res) => {
         const updated = TodoModel.toggleStatus(req.params.id);
         if (!updated) {
-            return res.status(404).send('Todo not found');
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+            return res.status(404).send('Task not found');
         }
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, todo: updated, stats: TodoModel.getStats() });
+        }
+
         res.redirect('/');
     }
 };

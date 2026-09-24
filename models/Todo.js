@@ -4,22 +4,26 @@ let todos = [];
 let currentId = 1;
 
 class Todo {
-    constructor(name, description, priority, status = 'pending') {
+    constructor(name, description, priority, category = 'Work', status = 'pending', dueDate = '') {
         this.id = currentId++;
         this.name = name;
         this.description = description;
-        this.priority = priority; // 'high', 'medium', 'low'
-        this.status = status; // 'pending', 'completed'
+        this.priority = priority || 'medium'; // 'high', 'medium', 'low'
+        this.category = category || 'General'; // 'Work', 'Personal', 'Development', 'Design', 'Finance', 'General'
+        this.status = status || 'pending'; // 'pending', 'completed'
+        this.dueDate = dueDate || '';
         this.createdAt = new Date();
         this.updatedAt = new Date();
     }
 
     // Update todo
-    update(name, description, priority, status) {
-        this.name = name;
-        this.description = description;
-        this.priority = priority;
-        this.status = status;
+    update(name, description, priority, category, status, dueDate) {
+        this.name = name || this.name;
+        this.description = description !== undefined ? description : this.description;
+        this.priority = priority || this.priority;
+        if (category) this.category = category;
+        if (status) this.status = status;
+        if (dueDate !== undefined) this.dueDate = dueDate;
         this.updatedAt = new Date();
     }
 }
@@ -28,59 +32,71 @@ class Todo {
 // 🟢 DEFAULT TODOS INITIALIZATION (5 Todos)
 // ============================================
 function initializeDefaultTodos() {
-    // Check if todos are already initialized
     if (todos.length === 0) {
         const defaultTodos = [
             {
                 name: "Complete Project Documentation",
                 description: "Write comprehensive documentation for the todo app including setup instructions and API endpoints",
                 priority: "high",
-                status: "pending"
+                category: "Work",
+                status: "pending",
+                dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0]
             },
             {
                 name: "Design Database Schema",
                 description: "Create ER diagram and design database schema for the todo application with user authentication",
                 priority: "high",
-                status: "pending"
+                category: "Development",
+                status: "pending",
+                dueDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0]
             },
             {
                 name: "Setup CI/CD Pipeline",
                 description: "Configure GitHub Actions for automated testing and deployment to production environment",
                 priority: "medium",
-                status: "pending"
+                category: "Development",
+                status: "pending",
+                dueDate: new Date(Date.now() + 86400000 * 5).toISOString().split('T')[0]
             },
             {
                 name: "Write Unit Tests",
                 description: "Write comprehensive unit tests for all CRUD operations and edge cases",
                 priority: "medium",
-                status: "pending"
+                category: "Development",
+                status: "pending",
+                dueDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0]
             },
             {
                 name: "Review Pull Requests",
                 description: "Review and merge pending pull requests from team members and provide feedback",
                 priority: "low",
-                status: "completed"
+                category: "Work",
+                status: "completed",
+                dueDate: new Date().toISOString().split('T')[0]
             }
         ];
 
         defaultTodos.forEach(todo => {
-            const newTodo = new Todo(todo.name, todo.description, todo.priority, todo.status);
+            const newTodo = new Todo(
+                todo.name,
+                todo.description,
+                todo.priority,
+                todo.category,
+                todo.status,
+                todo.dueDate
+            );
             todos.push(newTodo);
         });
         
-        console.log(`✅ ${todos.length} default todos initialized!`);
-        console.log('📋 Default Todos:');
-        todos.forEach(todo => {
-            console.log(`   ${todo.id}. ${todo.name} (${todo.priority}) - ${todo.status}`);
-        });
+        console.log(`✅ ${todos.length} default categorized todos initialized!`);
     }
 }
 
 // CRUD Operations
 const TodoModel = {
     // Create - New todo add karein
-    create: (name, description, priority) => {
-        const todo = new Todo(name, description, priority);
+    create: (name, description, priority, category, dueDate) => {
+        const todo = new Todo(name, description, priority, category, 'pending', dueDate);
         todos.push(todo);
         return todo;
     },
@@ -96,10 +112,16 @@ const TodoModel = {
     },
 
     // Update - Todo ko update karein
-    update: (id, name, description, priority, status) => {
+    update: (id, name, description, priority, category, status, dueDate) => {
         const todo = TodoModel.findById(id);
         if (todo) {
-            todo.update(name, description, priority, status);
+            // Support both 5-param and 7-param signatures for backward compatibility
+            if (status === undefined && typeof category === 'string' && (category === 'pending' || category === 'completed')) {
+                // called as update(id, name, description, priority, status)
+                todo.update(name, description, priority, todo.category, category, todo.dueDate);
+            } else {
+                todo.update(name, description, priority, category, status, dueDate);
+            }
             return todo;
         }
         return null;
@@ -126,12 +148,37 @@ const TodoModel = {
         return null;
     },
 
+    // Statistics helper
+    getStats: () => {
+        const total = todos.length;
+        const completed = todos.filter(t => t.status === 'completed').length;
+        const pending = total - completed;
+        const highPriority = todos.filter(t => t.priority === 'high' && t.status === 'pending').length;
+        const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        // Group counts by category
+        const categories = {};
+        todos.forEach(t => {
+            const cat = t.category || 'General';
+            categories[cat] = (categories[cat] || 0) + 1;
+        });
+
+        return {
+            total,
+            completed,
+            pending,
+            highPriority,
+            completionRate: rate,
+            categories
+        };
+    },
+
     // Initialize default todos
     initialize: () => {
         initializeDefaultTodos();
     },
 
-    // Reset todos (Testing ke liye)
+    // Reset todos
     reset: () => {
         todos = [];
         currentId = 1;
